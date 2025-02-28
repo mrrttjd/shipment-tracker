@@ -7,15 +7,29 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            padding: 20px;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
             background-color: #f5f5f5;
         }
-        .container {
-            max-width: 1200px;
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 25%;
+            height: 100%;
             background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .main-content {
+            width: 75%;
+            height: 100%;
+            padding: 20px;
+            overflow-y: auto;
         }
         .header {
             margin-bottom: 30px;
@@ -24,17 +38,6 @@
         }
         .form-container {
             margin-bottom: 30px;
-        }
-        .results-container {
-            margin-top: 20px;
-        }
-        .shipment-card {
-            margin-bottom: 20px;
-            border-left: 5px solid #0d6efd;
-        }
-        .table-responsive {
-            max-height: 600px;
-            overflow-y: auto;
         }
         .loading {
             display: none;
@@ -48,71 +51,118 @@
         .tracking-history {
             margin-top: 25px;
         }
+        .results-table-container {
+            margin-top: 20px;
+        }
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80%;
+            color: #6c757d;
+            text-align: center;
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .badge-container {
+            margin-top: 15px;
+        }
+        .shipment-badge {
+            display: inline-block;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .shipment-badge:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1 class="text-center">Shipment Tracker</h1>
-            <p class="text-center text-muted">Track your shipments with ease</p>
-        </div>
+    <div class="app-container">
+        <!-- Sidebar for input -->
+        <div class="sidebar">
+            <div class="header">
+                <h3>Shipment Tracker</h3>
+                <p class="text-muted">Track your shipments with ease</p>
+            </div>
 
-        <div class="form-container">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Enter Tracking Information</h5>
-                    <form id="trackingForm">
-                        <div class="mb-3">
-                            <label for="trackingType" class="form-label">Select tracking type:</label>
-                            <select class="form-select" id="trackingType" required>
-                                <option value="transportDocumentReference">Transport Document Number</option>
-                                <option value="carrierBookingReference">Booking Reference</option>
-                                <option value="equipmentReference">Container Number</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="trackingNumber" class="form-label">Tracking Number:</label>
-                            <input type="text" class="form-control" id="trackingNumber" placeholder="Enter tracking number" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Track Shipment</button>
-                    </form>
+            <div class="form-container">
+                <form id="trackingForm">
+                    <div class="mb-3">
+                        <label for="trackingType" class="form-label">Select tracking type:</label>
+                        <select class="form-select" id="trackingType" required>
+                            <option value="transportDocumentReference">Transport Document</option>
+                            <option value="carrierBookingReference">Booking Reference</option>
+                            <option value="equipmentReference">Container Number</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trackingNumber" class="form-label">Tracking Number:</label>
+                        <input type="text" class="form-control" id="trackingNumber" placeholder="Enter tracking number" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Shipment</button>
+                </form>
+            </div>
+
+            <div class="loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Fetching shipment information...</p>
+            </div>
+
+            <div class="api-error alert alert-danger">
+                <h5>Error Tracking Shipment</h5>
+                <p id="errorMessage"></p>
+            </div>
+
+            <div class="badge-container">
+                <h5>Active Shipments</h5>
+                <div id="shipmentBadges">
+                    <!-- Shipment badges will be added here -->
+                    <div class="text-muted mt-2" id="noBadgesMessage">No shipments added yet</div>
                 </div>
             </div>
-        </div>
 
-        <div class="loading">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <div class="mt-4">
+                <button id="clearAllBtn" class="btn btn-outline-danger btn-sm" disabled>Clear All</button>
             </div>
-            <p class="mt-2">Fetching shipment information...</p>
         </div>
 
-        <div class="api-error alert alert-danger">
-            <h5>Error Tracking Shipment</h5>
-            <p id="errorMessage"></p>
-        </div>
+        <!-- Main content area for results table -->
+        <div class="main-content">
+            <div id="emptyState" class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
+                    <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
+                </svg>
+                <h4 class="mt-3">No Shipments Added</h4>
+                <p>Add a shipment in the sidebar to start tracking</p>
+            </div>
 
-        <div class="results-container">
-            <div id="trackingResults"></div>
-        </div>
-
-        <div class="tracking-history">
-            <h4>Tracking History</h4>
-            <p class="text-muted">Recent tracking numbers you've searched</p>
-            <div class="table-responsive">
-                <table class="table table-striped" id="historyTable">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Tracking Number</th>
-                            <th>Date Searched</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <!-- History items will be added here -->
-                    </tbody>
-                </table>
+            <div class="results-table-container" id="resultsContainer" style="display:none;">
+                <h3>Shipment Events</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="eventsTable">
+                        <thead>
+                            <tr>
+                                <th>Tracking Number</th>
+                                <th>Event Type</th>
+                                <th>Event Date</th>
+                                <th>Location</th>
+                                <th>Vessel/Voyage</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <!-- Event rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -120,14 +170,21 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const trackingForm = document.getElementById('trackingForm');
-            const trackingResults = document.getElementById('trackingResults');
-            const historyTableBody = document.getElementById('historyTableBody');
+            const eventsTableBody = document.getElementById('eventsTableBody');
             const loadingIndicator = document.querySelector('.loading');
             const apiError = document.querySelector('.api-error');
             const errorMessage = document.getElementById('errorMessage');
+            const emptyState = document.getElementById('emptyState');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const shipmentBadges = document.getElementById('shipmentBadges');
+            const noBadgesMessage = document.getElementById('noBadgesMessage');
+            const clearAllBtn = document.getElementById('clearAllBtn');
             
-            // Load tracking history from localStorage
-            loadTrackingHistory();
+            // Track added shipments
+            const addedShipments = new Set();
+            
+            // Initialize
+            updateShipmentBadges();
             
             trackingForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -140,19 +197,42 @@
                     return;
                 }
                 
+                // Generate unique ID for this shipment
+                const shipmentId = `${trackingType}-${trackingNumber}`;
+                
+                // Check if already added
+                if (addedShipments.has(shipmentId)) {
+                    alert(`This shipment (${getTrackingTypeLabel(trackingType)}: ${trackingNumber}) is already being tracked.`);
+                    return;
+                }
+                
                 // Show loading indicator
                 loadingIndicator.style.display = 'block';
                 // Hide any previous errors
                 apiError.style.display = 'none';
                 
-                // Call the tracking API
-                trackShipment(trackingType, trackingNumber);
+                // Add to tracking list immediately to prevent duplicate adds during loading
+                addedShipments.add(shipmentId);
+                updateShipmentBadges();
                 
-                // Save to tracking history
-                saveToTrackingHistory(trackingType, trackingNumber);
+                // Call the tracking API
+                trackShipment(trackingType, trackingNumber, shipmentId);
+                
+                // Clear the input field
+                document.getElementById('trackingNumber').value = '';
             });
             
-            function trackShipment(trackingType, trackingNumber) {
+            clearAllBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all shipments?')) {
+                    addedShipments.clear();
+                    eventsTableBody.innerHTML = '';
+                    updateShipmentBadges();
+                    emptyState.style.display = 'flex';
+                    resultsContainer.style.display = 'none';
+                }
+            });
+            
+            function trackShipment(trackingType, trackingNumber, shipmentId) {
                 // In a real implementation, you would need to use your API credentials
                 const clientId = 'YOUR_CLIENT_ID';  // Replace with your actual client ID
                 const clientSecret = 'YOUR_CLIENT_SECRET';  // Replace with your actual client secret
@@ -170,12 +250,20 @@
                         // Hide loading indicator
                         loadingIndicator.style.display = 'none';
                         
-                        // Display the results
-                        displayResults(data, trackingType, trackingNumber);
+                        // Add results to the table
+                        addResultsToTable(data, trackingType, trackingNumber);
+                        
+                        // Hide empty state and show results
+                        emptyState.style.display = 'none';
+                        resultsContainer.style.display = 'block';
                     })
                     .catch(error => {
                         // Hide loading indicator
                         loadingIndicator.style.display = 'none';
+                        
+                        // Remove from tracking list since it failed
+                        addedShipments.delete(shipmentId);
+                        updateShipmentBadges();
                         
                         // Show error message
                         errorMessage.textContent = error.message || 'Error fetching shipment data. Please try again.';
@@ -202,12 +290,20 @@
                     // Hide loading indicator
                     loadingIndicator.style.display = 'none';
                     
-                    // Display the results
-                    displayResults(data, trackingType, trackingNumber);
+                    // Add results to the table
+                    addResultsToTable(data, trackingType, trackingNumber);
+                    
+                    // Hide empty state and show results
+                    emptyState.style.display = 'none';
+                    resultsContainer.style.display = 'block';
                 })
                 .catch(error => {
                     // Hide loading indicator
                     loadingIndicator.style.display = 'none';
+                    
+                    // Remove from tracking list since it failed
+                    addedShipments.delete(shipmentId);
+                    updateShipmentBadges();
                     
                     // Show error message
                     errorMessage.textContent = error.message || 'Error fetching shipment data. Please try again.';
@@ -216,41 +312,17 @@
                 */
             }
             
-            function displayResults(data, trackingType, trackingNumber) {
-                // Clear previous results
-                trackingResults.innerHTML = '';
-                
+            function addResultsToTable(data, trackingType, trackingNumber) {
                 if (data.length === 0) {
-                    trackingResults.innerHTML = `
-                        <div class="alert alert-warning">
-                            No tracking information found for ${getTrackingTypeLabel(trackingType)}: ${trackingNumber}
-                        </div>
+                    // Add a row indicating no events for this shipment
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${trackingNumber}</td>
+                        <td colspan="6" class="text-center">No events found for this shipment</td>
                     `;
+                    eventsTableBody.appendChild(row);
                     return;
                 }
-                
-                // Create header for the results
-                const headerHtml = `
-                    <h3>Tracking Results for ${getTrackingTypeLabel(trackingType)}: ${trackingNumber}</h3>
-                    <p class="text-muted">Found ${data.length} events</p>
-                `;
-                
-                // Create the table
-                let tableHtml = `
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Event Type</th>
-                                    <th>Event Date</th>
-                                    <th>Location</th>
-                                    <th>Vessel/Voyage</th>
-                                    <th>Status</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
                 
                 // Sort events by date (newest first)
                 data.sort((a, b) => new Date(b.eventDateTime) - new Date(a.eventDateTime));
@@ -283,26 +355,19 @@
                         details = `Document: ${event.documentTypeCode || 'N/A'}, ID: ${event.documentID || 'N/A'}`;
                     }
                     
-                    tableHtml += `
-                        <tr>
-                            <td>${eventType}</td>
-                            <td>${eventDate}</td>
-                            <td>${location}</td>
-                            <td>${vesselVoyage}</td>
-                            <td><span class="badge bg-primary">${status}</span></td>
-                            <td>${details}</td>
-                        </tr>
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${trackingNumber}</td>
+                        <td>${eventType}</td>
+                        <td>${eventDate}</td>
+                        <td>${location}</td>
+                        <td>${vesselVoyage}</td>
+                        <td><span class="badge bg-primary">${status}</span></td>
+                        <td>${details}</td>
                     `;
+                    
+                    eventsTableBody.appendChild(row);
                 });
-                
-                tableHtml += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-                
-                // Add the header and table to the results div
-                trackingResults.innerHTML = headerHtml + tableHtml;
             }
             
             function formatDate(dateString) {
@@ -317,96 +382,81 @@
                     case 'carrierBookingReference':
                         return 'Booking Reference';
                     case 'equipmentReference':
-                        return 'Container Number';
+                        return 'Container';
                     default:
                         return trackingType;
                 }
             }
             
-            function saveToTrackingHistory(trackingType, trackingNumber) {
-                const historyItem = {
-                    type: trackingType,
-                    number: trackingNumber,
-                    date: new Date().toISOString()
-                };
-                
-                // Get existing history from localStorage
-                let history = JSON.parse(localStorage.getItem('trackingHistory') || '[]');
-                
-                // Check if this item already exists in history
-                const existingItemIndex = history.findIndex(item => 
-                    item.type === trackingType && item.number === trackingNumber
-                );
-                
-                // If exists, remove it (we'll add it back at the top)
-                if (existingItemIndex !== -1) {
-                    history.splice(existingItemIndex, 1);
+            function getTrackingTypeShortLabel(trackingType) {
+                switch(trackingType) {
+                    case 'transportDocumentReference':
+                        return 'TD';
+                    case 'carrierBookingReference':
+                        return 'BK';
+                    case 'equipmentReference':
+                        return 'CN';
+                    default:
+                        return 'TN';
                 }
-                
-                // Add new item at the beginning
-                history.unshift(historyItem);
-                
-                // Keep only the last 10 items
-                history = history.slice(0, 10);
-                
-                // Save back to localStorage
-                localStorage.setItem('trackingHistory', JSON.stringify(history));
-                
-                // Update the history table
-                loadTrackingHistory();
             }
             
-            function loadTrackingHistory() {
-                const history = JSON.parse(localStorage.getItem('trackingHistory') || '[]');
+            function updateShipmentBadges() {
+                // Clear current badges
+                shipmentBadges.innerHTML = '';
                 
-                // Clear the table
-                historyTableBody.innerHTML = '';
-                
-                if (history.length === 0) {
-                    historyTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center">No tracking history yet</td>
-                        </tr>
-                    `;
+                if (addedShipments.size === 0) {
+                    shipmentBadges.appendChild(noBadgesMessage);
+                    clearAllBtn.disabled = true;
                     return;
                 }
                 
-                // Add each history item to the table
-                history.forEach(item => {
-                    const row = document.createElement('tr');
-                    
-                    const formattedDate = new Date(item.date).toLocaleString();
-                    
-                    row.innerHTML = `
-                        <td>${getTrackingTypeLabel(item.type)}</td>
-                        <td>${item.number}</td>
-                        <td>${formattedDate}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary track-again" 
-                                data-type="${item.type}" 
-                                data-number="${item.number}">
-                                Track Again
-                            </button>
-                        </td>
-                    `;
-                    
-                    historyTableBody.appendChild(row);
-                });
+                clearAllBtn.disabled = false;
                 
-                // Add event listeners to "Track Again" buttons
-                document.querySelectorAll('.track-again').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const type = this.getAttribute('data-type');
-                        const number = this.getAttribute('data-number');
-                        
-                        // Set the form values
-                        document.getElementById('trackingType').value = type;
-                        document.getElementById('trackingNumber').value = number;
-                        
-                        // Submit the form
-                        trackingForm.dispatchEvent(new Event('submit'));
+                // Add a badge for each shipment
+                addedShipments.forEach(shipmentId => {
+                    const parts = shipmentId.split('-');
+                    const type = parts[0];
+                    const number = parts.slice(1).join('-'); // In case the tracking number itself contains dashes
+                    
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-secondary shipment-badge';
+                    badge.innerHTML = `${getTrackingTypeShortLabel(type)}: ${number} <span class="badge bg-danger ms-1 remove-badge" data-id="${shipmentId}">&times;</span>`;
+                    shipmentBadges.appendChild(badge);
+                    
+                    // Add click handler for the remove button
+                    badge.querySelector('.remove-badge').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = this.getAttribute('data-id');
+                        removeShipment(id);
                     });
                 });
+            }
+            
+            function removeShipment(shipmentId) {
+                // Remove from tracking list
+                addedShipments.delete(shipmentId);
+                
+                // Parse the ID to get type and number
+                const parts = shipmentId.split('-');
+                const trackingNumber = parts.slice(1).join('-');
+                
+                // Remove rows from table
+                const rows = eventsTableBody.querySelectorAll('tr');
+                for (let i = rows.length - 1; i >= 0; i--) {
+                    if (rows[i].cells[0].textContent === trackingNumber) {
+                        rows[i].remove();
+                    }
+                }
+                
+                // Update badges
+                updateShipmentBadges();
+                
+                // Show empty state if no shipments left
+                if (addedShipments.size === 0) {
+                    emptyState.style.display = 'flex';
+                    resultsContainer.style.display = 'none';
+                }
             }
             
             // Function to simulate API response for demonstration
