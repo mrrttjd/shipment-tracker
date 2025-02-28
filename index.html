@@ -48,7 +48,7 @@
             display: none;
             margin-top: 20px;
         }
-        .tracking-history {
+        .badge-container {
             margin-top: 25px;
         }
         .results-table-container {
@@ -78,6 +78,34 @@
         }
         .shipment-badge:hover {
             opacity: 0.9;
+        }
+        .tab-content {
+            padding-top: 20px;
+        }
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .nav-tabs .nav-link {
+            margin-bottom: -1px;
+            border: 1px solid transparent;
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+        }
+        .nav-tabs .nav-link:hover,
+        .nav-tabs .nav-link:focus {
+            border-color: #e9ecef #e9ecef #dee2e6;
+        }
+        .nav-tabs .nav-link.active {
+            color: #495057;
+            background-color: #fff;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+        .tab-pane {
+            padding: 20px 0;
+        }
+        .badge-counter {
+            font-size: 0.8em;
+            vertical-align: top;
         }
     </style>
 </head>
@@ -145,32 +173,136 @@
 
             <div class="results-table-container" id="resultsContainer" style="display:none;">
                 <h3>Shipment Events</h3>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="eventsTable">
-                        <thead>
-                            <tr>
-                                <th>Tracking Number</th>
-                                <th>Event Type</th>
-                                <th>Event Date</th>
-                                <th>Location</th>
-                                <th>Vessel/Voyage</th>
-                                <th>Status</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody id="eventsTableBody">
-                            <!-- Event rows will be added here -->
-                        </tbody>
-                    </table>
+                
+                <!-- Tabs for different shipment types -->
+                <ul class="nav nav-tabs" id="shipmentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-pane" type="button" role="tab" aria-controls="all-pane" aria-selected="true">
+                            All <span class="badge bg-secondary badge-counter" id="all-count">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="transport-tab" data-bs-toggle="tab" data-bs-target="#transport-pane" type="button" role="tab" aria-controls="transport-pane" aria-selected="false">
+                            Transport Documents <span class="badge bg-secondary badge-counter" id="transport-count">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="booking-tab" data-bs-toggle="tab" data-bs-target="#booking-pane" type="button" role="tab" aria-controls="booking-pane" aria-selected="false">
+                            Booking References <span class="badge bg-secondary badge-counter" id="booking-count">0</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="container-tab" data-bs-toggle="tab" data-bs-target="#container-pane" type="button" role="tab" aria-controls="container-pane" aria-selected="false">
+                            Containers <span class="badge bg-secondary badge-counter" id="container-count">0</span>
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab content -->
+                <div class="tab-content" id="shipmentTabContent">
+                    <!-- All shipments tab -->
+                    <div class="tab-pane fade show active" id="all-pane" role="tabpanel" aria-labelledby="all-tab" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="allEventsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Tracking Number</th>
+                                        <th>Type</th>
+                                        <th>Event Type</th>
+                                        <th>Event Date</th>
+                                        <th>Location</th>
+                                        <th>Vessel/Voyage</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allEventsTableBody">
+                                    <!-- Event rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Transport documents tab -->
+                    <div class="tab-pane fade" id="transport-pane" role="tabpanel" aria-labelledby="transport-tab" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="transportEventsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Document Number</th>
+                                        <th>Event Type</th>
+                                        <th>Event Date</th>
+                                        <th>Location</th>
+                                        <th>Vessel/Voyage</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transportEventsTableBody">
+                                    <!-- Event rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Booking references tab -->
+                    <div class="tab-pane fade" id="booking-pane" role="tabpanel" aria-labelledby="booking-tab" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="bookingEventsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Booking Reference</th>
+                                        <th>Event Type</th>
+                                        <th>Event Date</th>
+                                        <th>Location</th>
+                                        <th>Vessel/Voyage</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bookingEventsTableBody">
+                                    <!-- Event rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Container numbers tab -->
+                    <div class="tab-pane fade" id="container-pane" role="tabpanel" aria-labelledby="container-tab" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="containerEventsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Container Number</th>
+                                        <th>Event Type</th>
+                                        <th>Event Date</th>
+                                        <th>Location</th>
+                                        <th>Vessel/Voyage</th>
+                                        <th>Status</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="containerEventsTableBody">
+                                    <!-- Event rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Include Bootstrap JS for tab functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const trackingForm = document.getElementById('trackingForm');
-            const eventsTableBody = document.getElementById('eventsTableBody');
+            const allEventsTableBody = document.getElementById('allEventsTableBody');
+            const transportEventsTableBody = document.getElementById('transportEventsTableBody');
+            const bookingEventsTableBody = document.getElementById('bookingEventsTableBody');
+            const containerEventsTableBody = document.getElementById('containerEventsTableBody');
             const loadingIndicator = document.querySelector('.loading');
             const apiError = document.querySelector('.api-error');
             const errorMessage = document.getElementById('errorMessage');
@@ -180,11 +312,24 @@
             const noBadgesMessage = document.getElementById('noBadgesMessage');
             const clearAllBtn = document.getElementById('clearAllBtn');
             
-            // Track added shipments
+            // Counter elements
+            const allCountBadge = document.getElementById('all-count');
+            const transportCountBadge = document.getElementById('transport-count');
+            const bookingCountBadge = document.getElementById('booking-count');
+            const containerCountBadge = document.getElementById('container-count');
+            
+            // Track added shipments and counts
             const addedShipments = new Set();
+            let shipmentCounts = {
+                transport: 0,
+                booking: 0,
+                container: 0,
+                total: 0
+            };
             
             // Initialize
             updateShipmentBadges();
+            updateCountBadges();
             
             trackingForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -225,8 +370,21 @@
             clearAllBtn.addEventListener('click', function() {
                 if (confirm('Are you sure you want to clear all shipments?')) {
                     addedShipments.clear();
-                    eventsTableBody.innerHTML = '';
+                    allEventsTableBody.innerHTML = '';
+                    transportEventsTableBody.innerHTML = '';
+                    bookingEventsTableBody.innerHTML = '';
+                    containerEventsTableBody.innerHTML = '';
+                    
+                    // Reset counts
+                    shipmentCounts = {
+                        transport: 0,
+                        booking: 0,
+                        container: 0,
+                        total: 0
+                    };
+                    
                     updateShipmentBadges();
+                    updateCountBadges();
                     emptyState.style.display = 'flex';
                     resultsContainer.style.display = 'none';
                 }
@@ -250,12 +408,18 @@
                         // Hide loading indicator
                         loadingIndicator.style.display = 'none';
                         
-                        // Add results to the table
-                        addResultsToTable(data, trackingType, trackingNumber);
+                        // Update the shipment count for the correct category
+                        incrementShipmentCount(trackingType);
+                        
+                        // Add results to the tables
+                        addResultsToTables(data, trackingType, trackingNumber);
                         
                         // Hide empty state and show results
                         emptyState.style.display = 'none';
                         resultsContainer.style.display = 'block';
+                        
+                        // Activate the appropriate tab based on the tracking type
+                        activateTabForTrackingType(trackingType);
                     })
                     .catch(error => {
                         // Hide loading indicator
@@ -290,12 +454,18 @@
                     // Hide loading indicator
                     loadingIndicator.style.display = 'none';
                     
-                    // Add results to the table
-                    addResultsToTable(data, trackingType, trackingNumber);
+                    // Update the shipment count for the correct category
+                    incrementShipmentCount(trackingType);
+                    
+                    // Add results to the tables
+                    addResultsToTables(data, trackingType, trackingNumber);
                     
                     // Hide empty state and show results
                     emptyState.style.display = 'none';
                     resultsContainer.style.display = 'block';
+                    
+                    // Activate the appropriate tab based on the tracking type
+                    activateTabForTrackingType(trackingType);
                 })
                 .catch(error => {
                     // Hide loading indicator
@@ -312,22 +482,79 @@
                 */
             }
             
-            function addResultsToTable(data, trackingType, trackingNumber) {
+            function incrementShipmentCount(trackingType) {
+                shipmentCounts.total++;
+                
+                if (trackingType === 'transportDocumentReference') {
+                    shipmentCounts.transport++;
+                } else if (trackingType === 'carrierBookingReference') {
+                    shipmentCounts.booking++;
+                } else if (trackingType === 'equipmentReference') {
+                    shipmentCounts.container++;
+                }
+                
+                updateCountBadges();
+            }
+            
+            function updateCountBadges() {
+                allCountBadge.textContent = shipmentCounts.total;
+                transportCountBadge.textContent = shipmentCounts.transport;
+                bookingCountBadge.textContent = shipmentCounts.booking;
+                containerCountBadge.textContent = shipmentCounts.container;
+            }
+            
+            function activateTabForTrackingType(trackingType) {
+                let tabId;
+                
+                if (trackingType === 'transportDocumentReference') {
+                    tabId = 'transport-tab';
+                } else if (trackingType === 'carrierBookingReference') {
+                    tabId = 'booking-tab';
+                } else if (trackingType === 'equipmentReference') {
+                    tabId = 'container-tab';
+                } else {
+                    tabId = 'all-tab';
+                }
+                
+                // Use Bootstrap's API to activate the tab
+                const tabElement = document.getElementById(tabId);
+                const tab = new bootstrap.Tab(tabElement);
+                tab.show();
+            }
+            
+            function addResultsToTables(data, trackingType, trackingNumber) {
                 if (data.length === 0) {
-                    // Add a row indicating no events for this shipment
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
+                    // Add a row indicating no events for this shipment to all relevant tables
+                    const allRow = document.createElement('tr');
+                    allRow.innerHTML = `
+                        <td>${trackingNumber}</td>
+                        <td>${getTrackingTypeShortLabel(trackingType)}</td>
+                        <td colspan="6" class="text-center">No events found for this shipment</td>
+                    `;
+                    allEventsTableBody.appendChild(allRow);
+                    
+                    // Add to the type-specific table too
+                    const typeRow = document.createElement('tr');
+                    typeRow.innerHTML = `
                         <td>${trackingNumber}</td>
                         <td colspan="6" class="text-center">No events found for this shipment</td>
                     `;
-                    eventsTableBody.appendChild(row);
+                    
+                    if (trackingType === 'transportDocumentReference') {
+                        transportEventsTableBody.appendChild(typeRow);
+                    } else if (trackingType === 'carrierBookingReference') {
+                        bookingEventsTableBody.appendChild(typeRow);
+                    } else if (trackingType === 'equipmentReference') {
+                        containerEventsTableBody.appendChild(typeRow);
+                    }
+                    
                     return;
                 }
                 
                 // Sort events by date (newest first)
                 data.sort((a, b) => new Date(b.eventDateTime) - new Date(a.eventDateTime));
                 
-                // Add each event to the table
+                // Add each event to the tables
                 data.forEach(event => {
                     const eventType = event.eventType;
                     const eventDate = formatDate(event.eventDateTime);
@@ -355,8 +582,23 @@
                         details = `Document: ${event.documentTypeCode || 'N/A'}, ID: ${event.documentID || 'N/A'}`;
                     }
                     
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
+                    // Create row for the All tab
+                    const allRow = document.createElement('tr');
+                    allRow.innerHTML = `
+                        <td>${trackingNumber}</td>
+                        <td>${getTrackingTypeShortLabel(trackingType)}</td>
+                        <td>${eventType}</td>
+                        <td>${eventDate}</td>
+                        <td>${location}</td>
+                        <td>${vesselVoyage}</td>
+                        <td><span class="badge bg-primary">${status}</span></td>
+                        <td>${details}</td>
+                    `;
+                    allEventsTableBody.appendChild(allRow);
+                    
+                    // Create row for the type-specific tab
+                    const typeRow = document.createElement('tr');
+                    typeRow.innerHTML = `
                         <td>${trackingNumber}</td>
                         <td>${eventType}</td>
                         <td>${eventDate}</td>
@@ -366,7 +608,14 @@
                         <td>${details}</td>
                     `;
                     
-                    eventsTableBody.appendChild(row);
+                    // Add to the appropriate type-specific table
+                    if (trackingType === 'transportDocumentReference') {
+                        transportEventsTableBody.appendChild(typeRow.cloneNode(true));
+                    } else if (trackingType === 'carrierBookingReference') {
+                        bookingEventsTableBody.appendChild(typeRow.cloneNode(true));
+                    } else if (trackingType === 'equipmentReference') {
+                        containerEventsTableBody.appendChild(typeRow.cloneNode(true));
+                    }
                 });
             }
             
@@ -439,23 +688,42 @@
                 
                 // Parse the ID to get type and number
                 const parts = shipmentId.split('-');
+                const trackingType = parts[0];
                 const trackingNumber = parts.slice(1).join('-');
                 
-                // Remove rows from table
-                const rows = eventsTableBody.querySelectorAll('tr');
-                for (let i = rows.length - 1; i >= 0; i--) {
-                    if (rows[i].cells[0].textContent === trackingNumber) {
-                        rows[i].remove();
-                    }
+                // Remove rows from all tables
+                removeRowsFromTable(allEventsTableBody, trackingNumber);
+                
+                if (trackingType === 'transportDocumentReference') {
+                    removeRowsFromTable(transportEventsTableBody, trackingNumber);
+                    shipmentCounts.transport--;
+                } else if (trackingType === 'carrierBookingReference') {
+                    removeRowsFromTable(bookingEventsTableBody, trackingNumber);
+                    shipmentCounts.booking--;
+                } else if (trackingType === 'equipmentReference') {
+                    removeRowsFromTable(containerEventsTableBody, trackingNumber);
+                    shipmentCounts.container--;
                 }
                 
-                // Update badges
+                shipmentCounts.total--;
+                
+                // Update badges and counts
                 updateShipmentBadges();
+                updateCountBadges();
                 
                 // Show empty state if no shipments left
                 if (addedShipments.size === 0) {
                     emptyState.style.display = 'flex';
                     resultsContainer.style.display = 'none';
+                }
+            }
+            
+            function removeRowsFromTable(tableBody, trackingNumber) {
+                const rows = tableBody.querySelectorAll('tr');
+                for (let i = rows.length - 1; i >= 0; i--) {
+                    if (rows[i].cells[0].textContent === trackingNumber) {
+                        rows[i].remove();
+                    }
                 }
             }
             
