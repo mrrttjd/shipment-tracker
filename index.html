@@ -136,30 +136,45 @@
 <body>
     <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="helpModalLabel">How to Use</h5>
+                    <h5 class="modal-title" id="helpModalLabel">How to Use the Shipment Tracker Demo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <h6>Tracking Shipments</h6>
+                    <h5>Getting Started</h5>
+                    <p>This demo application simulates tracking shipments using different reference numbers commonly used in shipping and logistics.</p>
+                    
+                    <h5>Adding Shipments</h5>
                     <ol>
-                        <li>Select tracking type (Transport Document, Booking Reference, Container)</li>
-                        <li>Enter tracking number or click a sample button</li>
-                        <li>View results in the tabs on the right</li>
+                        <li>Select a tracking type from the dropdown menu:
+                            <ul>
+                                <li><strong>Transport Document</strong> - For Bill of Lading or other transport document numbers</li>
+                                <li><strong>Booking Reference</strong> - For carrier booking reference numbers</li>
+                                <li><strong>Container Number</strong> - For container/equipment numbers</li>
+                            </ul>
+                        </li>
+                        <li>Enter a tracking number in the input field or use one of the sample buttons</li>
+                        <li>Click "Add Shipment" to track the shipment</li>
                     </ol>
                     
-                    <h6>Demo Features</h6>
+                    <h5>Viewing Results</h5>
+                    <p>Results are displayed in the main area of the screen, organized in tabs:</p>
                     <ul>
-                        <li>Type "ERROR" to see error handling</li>
-                        <li>Export to CSV from the ALL tab</li>
-                        <li>LIVE tab shows most recent events</li>
+                        <li><strong>Live</strong> - Shows only the most recent event for each shipment with a real-time indicator</li>
+                        <li><strong>All</strong> - Shows all shipment events with CSV export functionality</li>
+                        <li><strong>Transport Documents</strong> - Shows only transport document events</li>
+                        <li><strong>Booking References</strong> - Shows only booking reference events</li>
+                        <li><strong>Containers</strong> - Shows only container events</li>
                     </ul>
                     
-                    <div class="alert alert-info small">
-                        This is a demo application. In a real implementation, you would need API credentials.
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> This is a demo application. In a real-world implementation, you would need to use actual API credentials and endpoints.
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
