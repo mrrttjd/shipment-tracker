@@ -1,34 +1,42 @@
-# Shipment Tracker Demo
-This demo application simulates tracking shipments using different reference numbers commonly used in shipping and logistics.
-- Monitor multiple shipments in a single interface.
-- Export to CSV from the ALL tab.
-- LIVE tab shows most recent events.
-- A working version would call the Hapag-Lloyd API (or any API made to DCSA Track & Trace spec) to retrieve shipment data.
+# Shipment Tracker
 
+A web app PoC to track multiple shipping containers in a single interface.
+
+## Features
+
+- Track different types of shipments (via containers, bookings, transport documents)
+- Monitor multiple shipments simultaneously
+- View most recent events in the LIVE tab
+- Export data to CSV from the ALL tab
+- Filter shipments by reference type
+
+> A production version would integrate with shipping APIs that implement the DCSA Track & Trace specification.
+>
+> The DCSA (Digital Container Shipping Association) Track & Trace standard provides a unified data model and API design for tracking shipments across different carriers (e.g Hapag-Lloyd).
 
 ## Demo
-Try demo:
-https://shipment-tracker-demo.netlify.app
 
-## Preview
-![](screenshot.png)
+[Live Demo](https://shipment-tracker-demo.netlify.app)
 
-## Usage
+## Screenshot
+
+![Screenshot](screenshot.png)
+
+## How to Use
+
 ### Adding Shipments
 
-1. Select a tracking type from the dropdown menu:
-    - **Transport Document** - For Bill of Lading or other transport document numbers
-    - **Booking Reference** - For carrier booking reference numbers
-    - **Container Number** - For container/equipment numbers
-2. Enter a tracking number in the input field or use one of the sample buttons
-3. Click "Add Shipment" to track the shipment
+1. Select a tracking type:
+   - Transport Document (Bill of Lading)
+   - Booking Reference
+   - Container Number
+2. Enter a tracking number or use the quick-add sample buttons for demo data
+3. Click "Add Shipment"
 
-### Viewing Results
+### Viewing Shipments
 
-Results are displayed in the main area of the screen, organized in tabs:
-
-- **Live** - Shows only the most recent event for each shipment with a real-time indicator
-- **All** - Shows all shipment events with CSV export functionality
-- **Transport Documents** - Shows only transport document events
-- **Booking References** - Shows only booking reference events
-- **Containers** - Shows only container events
+- **LIVE**: Most recent events with real-time indicators
+- **ALL**: Complete shipment history with CSV export
+- **Transport Documents**: Bill of Lading tracking only
+- **Booking References**: Booking reference tracking only
+- **Containers**: Container tracking only
